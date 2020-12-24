@@ -137,7 +137,6 @@ int main()
 			auto end = std::chrono::steady_clock::now();
 			auto elapsed_ms = std::chrono::duration_cast<std::chrono::milliseconds>(end - begin);
 			fout << y << "\t" << elapsed_ms.count() << "\n";
-			cout << y << elapsed_ms.count() << " "
 			cout << y << "-th experiment complited\n";
 		}
 	}
