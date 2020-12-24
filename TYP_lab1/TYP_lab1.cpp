@@ -13,59 +13,35 @@ using namespace std;
 mutex mtx;
 
 void new_matrix_null(int** A, int n, int m)
-
 {
-
 	for (int i = 0; i < n; i++)
-
 	{
-
 		A[i] = new int[n];
-
 		for (int j = 0; j < m; j++)
-
 		{
-
 			A[i][j] = 0;
-
 		}
-
 	}
-
 }
 
 void new_matrix_random(int** A, int n, int m)
-
 {
-
 	for (int i = 0; i < n; i++)
-
 	{
-
 		A[i] = new int[n];
-
 		for (int j = 0; j < m; j++)
-
 		{
-
 			A[i][j] = rand() % 1000;
-
 		}
-
 	}
-
 }
 
 timed_mutex t_mtx;
-
 condition_variable_any wait_other_threads;
 
 int num = 1000;
-
 int i = 0;
-
 int j = 0;
-
 int k = 0;
 
 int numThreads = 0;
