@@ -40,10 +40,10 @@ void new_matrix_random(int** A, int n, int m)
 condition_variable_any wait_other_threads;
 
 
-int i = 0;//с каким элементом итоговой матрицы (строка)
-int j = 0;//с каким... (столбец)
-int k = 0;//какой элемент в данный момент (строка второй матрицы)
-int numThreads = 0;//количество потоков
+int i = 0;
+int j = 0;
+int k = 0;
+int numThreads = 0;
 
 void mul_matrix2(int** mat1, int** mat2, int** mat3, int n, int quantity_experiments)
 {
@@ -66,7 +66,7 @@ void mul_matrix2(int** mat1, int** mat2, int** mat3, int n, int quantity_experim
 			mtx.unlock();
 			break;//потому что while не в критической секции
 		}
-		int i_local = i, j_local = j, k_local = k;//для того чтобы за мьютекса вычислить матрицы
+		int i_local = i, j_local = j, k_local = k;
 		k++;
 
 		if (k >= n)
@@ -87,7 +87,7 @@ void mul_matrix2(int** mat1, int** mat2, int** mat3, int n, int quantity_experim
 	i = 0;
 	j = 0;
 	k = 0;
-	numThreads = 0;//изменяется при следующем эксперементе
+	numThreads = 0;
 
 }
 
@@ -109,7 +109,7 @@ int main()
 	setlocale(LC_ALL, "Russian");
 	ofstream fout;
 	cout << "Введите количество потоков: ";
-	cin >> num;//количество эксперементов
+	cin >> num;
 
 	int n = 10;
 	int** A = new int* [n];
@@ -117,17 +117,17 @@ int main()
 	int** B = new int* [n];
 	new_matrix_random(B, n, n);
 	int** C = new int* [n];
-	new_matrix_null(C, n, n);// нужно для перемножения(0) итоговая матрица (+)
+	new_matrix_null(C, n, n);
 	int num_of_thread = _Thrd_hardware_concurrency();
 	fout.open("out.xls");
 
 	if (fout.is_open())
 	{
-		for (int y = 1; y <= num; y += 1)//эксперементы
+		for (int y = 1; y <= num; y += 1)
 		{
 			vector <thread> th_vec;
 			auto begin = std::chrono::steady_clock::now();
-			for (int z = 0; z < y; z++)// заполнение векторово потока
+			for (int z = 0; z < y; z++)
 			{
 				th_vec.push_back(thread(mul_matrix2, A, B, C, n, y));
 			}
