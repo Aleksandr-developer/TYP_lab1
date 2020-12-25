@@ -31,19 +31,19 @@ void new_matrix_random(int** A, int n, int m)
 		A[i] = new int[n];
 		for (int j = 0; j < m; j++)
 		{
-			A[i][j] = rand() % 1000;
+			A[i][j] = rand() % 100;
 		}
 	}
 }
 
-timed_mutex t_mtx;
+
 condition_variable_any wait_other_threads;
 
-int num = 1000;
-int i = 0;
-int j = 0;
-int k = 0;
-int numThreads = 0;
+
+int i = 0;//с каким элементом итоговой матрицы (строка)
+int j = 0;//с каким... (столбец)
+int k = 0;//какой элемент в данный момент (строка второй матрицы)
+int numThreads = 0;//количество потоков
 
 void mul_matrix2(int** mat1, int** mat2, int** mat3, int n, int quantity_experiments)
 {
@@ -60,14 +60,13 @@ void mul_matrix2(int** mat1, int** mat2, int** mat3, int n, int quantity_experim
 	while (i < n)
 	{
 		this_thread::get_id();
-		//lock_guard<mutex> firstGuard(mtx);
 		mtx.lock();
 		if (i >= n)
 		{
 			mtx.unlock();
-			break;
+			break;//потому что while не в критической секции
 		}
-		int i_local = i, j_local = j, k_local = k;
+		int i_local = i, j_local = j, k_local = k;//для того чтобы за мьютекса вычислить матрицы
 		k++;
 
 		if (k >= n)
@@ -81,11 +80,14 @@ void mul_matrix2(int** mat1, int** mat2, int** mat3, int n, int quantity_experim
 		}
 
 		mtx.unlock();
-
+		// для параллелизма
 		mat3[i_local][j_local] += mat1[i_local][k_local] * mat2[k_local][j_local];
 
 	}
-	numThreads = 0;
+	i = 0;
+	j = 0;
+	k = 0;
+	numThreads = 0;//изменяется при следующем эксперементе
 
 }
 
@@ -103,10 +105,11 @@ void show_matrix(int** A, int n, int m)
 
 int main()
 {
+	int num;
 	setlocale(LC_ALL, "Russian");
 	ofstream fout;
 	cout << "Введите количество потоков: ";
-	cin >> num;
+	cin >> num;//количество эксперементов
 
 	int n = 10;
 	int** A = new int* [n];
@@ -114,19 +117,19 @@ int main()
 	int** B = new int* [n];
 	new_matrix_random(B, n, n);
 	int** C = new int* [n];
-	new_matrix_null(C, n, n);
+	new_matrix_null(C, n, n);// нужно для перемножения(0) итоговая матрица (+)
 	int num_of_thread = _Thrd_hardware_concurrency();
 	fout.open("out.xls");
 
 	if (fout.is_open())
 	{
-		for (int y = 1; y <= num; y += 1)
+		for (int y = 1; y <= num; y += 1)//эксперементы
 		{
 			vector <thread> th_vec;
 			auto begin = std::chrono::steady_clock::now();
-			for (int z = 0; z < y; z++)
+			for (int z = 0; z < y; z++)// заполнение векторово потока
 			{
-				th_vec.push_back(thread(mul_matrix2, A, B, C, n, k));
+				th_vec.push_back(thread(mul_matrix2, A, B, C, n, y));
 			}
 
 			for (int z = 0; z < y; z++)
@@ -140,6 +143,11 @@ int main()
 			cout << y << "-th experiment complited\n";
 		}
 	}
+	cout << "RES\n";
 	show_matrix(C, n, n);
+	cout << "A\n";
+	show_matrix(A, n, n);
+	cout << "B\n";
+	show_matrix(B, n, n);
 	return 0;
 }
